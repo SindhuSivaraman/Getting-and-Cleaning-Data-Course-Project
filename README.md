@@ -5,7 +5,7 @@ Getting and Cleaning Data Course Project
 
 The file `run_analysis.R` describes how the script/flow goes.
 
-1. First, unzip the data from https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip and rename the folder as per your wish.
+1. Unzip data from https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip and rename the folder as per your wish.
 
 2. Make sure both the renamed folder and the run_analysis.R script are placed under the working directory of R.
 

@@ -7,25 +7,25 @@ dim(trainData) # 7352*561
 # Display and view the head of the data
 head(trainData)
 # Read the data from the "y_train" file
-trainLabel <- read.table("./UCI HAR Dataset/train/y_train.txt")
-table(trainLabel)
+trainActivity <- read.table("./UCI HAR Dataset/train/y_train.txt")
+table(trainActivity)
 # Read the data from the "subject_train" file
 trainSubject <- read.table("./UCI HAR Dataset/train/subject_train.txt")
 # Read the data from all the files under "test" folders
 testData <- read.table("./UCI HAR Dataset/test/X_test.txt")
 dim(testData) # 2947*561
-testLabel <- read.table("./UCI HAR Dataset/test/y_test.txt") 
-table(testLabel) 
+testActivity <- read.table("./UCI HAR Dataset/test/y_test.txt") 
+table(testActivity) 
 testSubject <- read.table("./UCI HAR Dataset/test/subject_test.txt")
 # Join both the test and train data by "row bind"
-joinData <- rbind(trainData, testData)
-dim(joinData) # 10299*561
+joinTrainAndTestData <- rbind(trainData, testData)
+dim(joinTrainAndTestData) # 10299*561
 # Join both the test and train label data by "row bind"
-joinLabel <- rbind(trainLabel, testLabel)
-dim(joinLabel) # 10299*1
+joinTrainAndTestActivity <- rbind(trainActivity, testActivity)
+dim(joinTrainAndTestActivity) # 10299*1
 # Join both the test and train subject data by "row bind"
-joinSubject <- rbind(trainSubject, testSubject)
-dim(joinSubject) # 10299*1
+joinTrainAndTestSubject <- rbind(trainSubject, testSubject)
+dim(joinTrainAndTestSubject) # 10299*1
 
 # Step2. Extracts only the measurements on the mean and standard 
 # deviation for each measurement. 
@@ -34,12 +34,12 @@ dim(features)  # 561*2
 # find mean from the "features" data
 meanStdIndices <- grep("mean\\(\\)|std\\(\\)", features[, 2])
 length(meanStdIndices) # 66
-joinData <- joinData[, meanStdIndices]
-dim(joinData) # 10299*66
-names(joinData) <- gsub("\\(\\)", "", features[meanStdIndices, 2]) # remove "()"
-names(joinData) <- gsub("mean", "Mean", names(joinData)) # capitalize M
-names(joinData) <- gsub("std", "Std", names(joinData)) # capitalize S
-names(joinData) <- gsub("-", "", names(joinData)) # remove "-" in column names 
+joinTrainAndTestData <- joinTrainAndTestData[, meanStdIndices]
+dim(joinTrainAndTestData) # 10299*66
+names(joinTrainAndTestData) <- gsub("\\(\\)", "", features[meanStdIndices, 2]) # remove "()"
+names(joinTrainAndTestData) <- gsub("mean", "Mean", names(joinTrainAndTestData)) # capitalize M
+names(joinTrainAndTestData) <- gsub("std", "Std", names(joinTrainAndTestData)) # capitalize S
+names(joinTrainAndTestData) <- gsub("-", "", names(joinTrainAndTestData)) # remove "-" in column names 
 
 # Step3. Uses descriptive activity names to name the activities in 
 # the data set
@@ -47,38 +47,37 @@ activity <- read.table("./UCI HAR Dataset/activity_labels.txt")
 activity[, 2] <- tolower(gsub("_", "", activity[, 2]))
 substr(activity[2, 2], 8, 8) <- toupper(substr(activity[2, 2], 8, 8))
 substr(activity[3, 2], 8, 8) <- toupper(substr(activity[3, 2], 8, 8))
-activityLabel <- activity[joinLabel[, 1], 2]
-joinLabel[, 1] <- activityLabel
-names(joinLabel) <- "activity"
+activityLabel <- activity[joinTrainAndTestActivity[, 1], 2]
+joinTrainAndTestActivity[, 1] <- activityLabel
+names(joinTrainAndTestActivity) <- "activity"
 
 # Step4. Appropriately labels the data set with descriptive activity 
 # names. 
-names(joinSubject) <- "subject"
-cleanedData <- cbind(joinSubject, joinLabel, joinData)
+names(joinTrainAndTestSubject) <- "subject"
+cleanedData <- cbind(joinTrainAndTestSubject, joinTrainAndTestActivity, joinTrainAndTestData)
 dim(cleanedData) # 10299*68
 write.table(cleanedData, "merged_data.txt") # write out the 1st dataset
 
 # Step5. Creates a second, independent tidy data set with the average of 
 # each variable for each activity and each subject. 
-subjectLen <- length(table(joinSubject)) # 30
+subjectLen <- length(table(joinTrainAndTestSubject)) # 30
 activityLen <- dim(activity)[1] # 6
 columnLen <- dim(cleanedData)[2]
-result <- matrix(NA, nrow=subjectLen*activityLen, ncol=columnLen) 
-result <- as.data.frame(result)
-colnames(result) <- colnames(cleanedData)
+tidyData <- matrix(NA, nrow=subjectLen*activityLen, ncol=columnLen) 
+tidyData <- as.data.frame(tidyData)
+colnames(tidyData) <- colnames(cleanedData)
 row <- 1
 for(i in 1:subjectLen) {
         for(j in 1:activityLen) {
-                result[row, 1] <- sort(unique(joinSubject)[, 1])[i]
-                result[row, 2] <- activity[j, 2]
+                tidyData[row, 1] <- sort(unique(joinTrainAndTestSubject)[, 1])[i]
+                tidyData[row, 2] <- activity[j, 2]
                 bool1 <- i == cleanedData$subject
                 bool2 <- activity[j, 2] == cleanedData$activity
-                result[row, 3:columnLen] <- colMeans(cleanedData[bool1&bool2, 3:columnLen])
+                tidyData[row, 3:columnLen] <- colMeans(cleanedData[bool1&bool2, 3:columnLen])
                 row <- row + 1
         }
 }
-head(result)
-write.table(result, "data_with_means.txt") # write out the 2nd dataset
+head(tidyData)
+write.table(tidyData, "tidy_data.txt") # write out the tidy data to a text file named `tidy_data.txt`
 
-# data <- read.table("./data_with_means.txt")
-# data[1:12, 1:3]
+# data <- read.table("./tidy_data.txt")

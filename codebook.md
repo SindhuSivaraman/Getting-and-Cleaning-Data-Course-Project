@@ -88,6 +88,7 @@ str(result)
 ##  $ fBodyBodyGyroMagStd     : num  -0.321 -0.183 -0.398 -0.932 -0.978 ...
 ##  $ fBodyBodyGyroJerkMagMean: num  -0.319 -0.635 -0.282 -0.99 -0.995 ...
 ##  $ fBodyBodyGyroJerkMagStd : num  -0.382 -0.694 -0.392 -0.987 -0.995 ...
+
 Show a few rows of the dataset
 
 result
@@ -2885,8 +2886,9 @@ summary(result)
 ##  Mean   :-0.672      Mean   :-0.756           Mean   :-0.771         
 ##  3rd Qu.:-0.428      3rd Qu.:-0.583           3rd Qu.:-0.608         
 ##  Max.   : 0.237      Max.   : 0.147           Max.   : 0.288
+
 Save to file
 
-Save data table objects to a text file called data_with_means.txt.
+Save data table objects to a text file called `tidy_data.txt`.
 
-write.table(result, "data_with_means.txt")
+write.table(result, "tidy_data.txt")
